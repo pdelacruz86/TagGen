@@ -1,0 +1,10 @@
+{
+ "name": "tagen",
+ "version": "1.0.0",
+ "description": "padsquad",
+ "author": "pdelacruz",
+ "private": true,
+ "scripts": {
+   "postinstall": "npm install express"
+ }
+}

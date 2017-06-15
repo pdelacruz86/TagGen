@@ -7,6 +7,10 @@
   "scripts": {
     "dev": "node build/dev-server.js",
     "build": "node build/build.js",
+<<<<<<< HEAD
+=======
+    "start": "node build/build.js",
+>>>>>>> 58fc4d6f39b276c7349f6cd67ef39010ccbf0748
     "unit": "cross-env BABEL_ENV=test karma start test/unit/karma.conf.js --single-run",
     "e2e": "node test/e2e/runner.js",
     "test": "npm run unit && npm run e2e",
