@@ -1,10 +1,14 @@
 {
- "name": "tagen",
- "version": "1.0.0",
- "description": "padsquad",
- "author": "pdelacruz",
- "private": true,
- "scripts": {
-   "postinstall": "npm install express"
- }
+  "name": "tagen",
+  "version": "1.0.0",
+  "description": "padsquad",
+  "author": "pdelacruz",
+  "private": true,
+  "scripts": {
+    "start": "node server.js",
+    "postinstall": "npm install express"
+  },
+  "dependencies": {
+    "server-static": "^2.0.5"
+  }
 }
