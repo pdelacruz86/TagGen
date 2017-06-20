@@ -37,7 +37,6 @@
     }
 
     function validateTagFolder(tagfoldername, callback){
-      debugger;
       tagfoldername = tagfoldername.trim();
       if (!tagfoldername) {
         return alert('Tag Folder name must contain at least one non-space character.');
@@ -57,7 +56,6 @@
     }
 
     function addTag(tagFolderName, tagName, tagHtml, callback) {
-      debugger;
       if (!tagHtml.length) {
         return alert('Please paste the html tag to create first.');
       }
@@ -124,8 +122,6 @@
         'Back To tags',
         '</button>',      
         ]
-
-        console.log(getHtml(htmlTemplate))
 
         return getHtml(htmlTemplate);
       });

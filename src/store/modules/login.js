@@ -1,4 +1,4 @@
-import api from '../../api'
+// import api from '../../api'
 import * as types from '../types'
 import router from '../../router'
 
@@ -23,24 +23,18 @@ const actions = {
   login ({ commit }, creds) {
     commit(types.LOGIN) // show spinner
     console.log(creds)
-    api.localLogin(creds).then(response => {
-      if (response.statusText !== 'OK') {
-        return
-      }
-      const token = response.data.token
-      localStorage.setItem('token', token)
-      commit(types.LOGIN_SUCCESS)
-      console.log(response)
-      router.push('/')
-    },
-    response => {
-    })
-    // return new Promise(resolve => {
-    //   setTimeout(() => {
-    //     localStorage.setItem('token', 'JWT')
-    //     commit(types.LOGIN_SUCCESS)
-    //     resolve()
-    //   }, 1000)
+
+    // api.localLogin(creds).then(response => {
+    //   if (response.statusText !== 'OK') {
+    //     return
+    //   }
+      // const token = response.data.token
+    localStorage.setItem('token', 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE0OTg1NzEyNjc4MDh9.TxSQke0Eyht8EipifgZtTfL3CBu6-G6_YJBEmUCPx7o')
+      // commit(types.LOGIN_SUCCESS)
+      // console.log(response)
+    router.push('/')
+    // },
+    // response => {
     // })
   },
   logout ({ commit }) {

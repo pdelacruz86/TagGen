@@ -1,6 +1,7 @@
 <template>
 	<div class="col-md-12">
-		<div class="col-md-3">
+		<div class="col-md-2">
+			
 		</div>
 		<div class="col-md-6">
 			<div class="portlet light ">
@@ -23,7 +24,7 @@
 							</div>
 						</div>
 						<div class="form-actions right">
-							<button type="button" class="btn default" @click="getAppNexusCode" >Clear</button>
+							<button type="button" class="btn default" @click="clear" >Clear</button>
 							<button type="button" class="btn green" @click="createTag">Create Tag</button>
 						</div>
 						<div class="form-group">
@@ -34,30 +35,40 @@
 				</div>
 			</div>
 		</div>
-		<div class="col-md-3">
+		<div class="col-md-4">
+		<div>
+				<file-select :username="folderName"></file-select>
+			</div>
 		</div>
 	</div>
 </template>
 
 <script>
 	/* eslint-disable */
+	import FileSelect from './taglist.vue'
+
 	var S3Upload = require('../../utils/S3Upload.js')
 	var _ = require('lodash')
 
+	var objList = [];
 	S3Upload.listTags(function (err, data) {
 		if (err) {
 			console.log('ERROR: ' + err);
 		} else {
 			var objKeys = "";
 			data.Contents.forEach(function (obj) {
-				objKeys += obj.Key + "<br>";
+				objList.push(obj.Key);
 			});
-			console.log(objKeys);
 		}
 	})
+
+	var html = S3Upload.viewTagsFolder('user1');
 	
 	export default {
 		name: 'Portable',
+		 components: {
+    		FileSelect
+  		},
 		data () {
 			return {
 				folderName: 'user1',
@@ -66,7 +77,8 @@
 				htmlString: '',
 				APIRootURL: 'https://q7cg2e05ni.execute-api.us-east-1.amazonaws.com/staging/',
 				APIqueryStrings: 'clickUrl=${CLICK_URL}&externalCreativeId=${CREATIVE_ID}&externalPlacementID=${TAG_ID}&externalSiteID=${SITE_ID}&externalSiteName=${REFERER_URL_ENC}&externalSupplierId=${PUBLISHER_ID}&externalCampaignId=${CP_ID}', 
-				APITestUrl: 'https://q7cg2e05ni.execute-api.us-east-1.amazonaws.com/staging/asdf/asdf?clickUrl=www.test.com&externalCreativeId=69146847&externalPlacementID=11282894&externalSiteID=2924258&externalSiteName=www.padsquad2.com&externalSupplierId=100240&externalCampaignId=CP_ID'
+				APITestUrl: 'https://q7cg2e05ni.execute-api.us-east-1.amazonaws.com/staging/asdf/asdf?clickUrl=www.test.com&externalCreativeId=69146847&externalPlacementID=11282894&externalSiteID=2924258&externalSiteName=www.padsquad2.com&externalSupplierId=100240&externalCampaignId=CP_ID',
+				file: null
 			}
 		},
 		methods: {
@@ -84,20 +96,17 @@
 
 	  		 //add tag html
 	  		 S3Upload.addTag(this.folderName, this.tagName, this.html, function(err, data) {
-	  		 	debugger;
 	  		 	if (err) {
 	  		 		return alert('There was an error uploading your tag: ', err.message);
 	  		 	}
 	  		 	alert('Successfully uploaded tag.');
 	  		 	var tags = S3Upload.viewTagsFolder(self.folderName);
-					console.log(tags)
+	  		 	console.log(tags)
 	  		 })
-			},
-			getAppNexusCode(){
-				debugger;
-				var div = document.getElementById('output')
-			    div.innerHTML = this.newHtmlForAppNexus;
-			    // var decoded = div.firstChild.nodeValue;
+	  		},
+	  		clear(){
+	  			this.tagName = "";
+	  			this.html = "";
 			}
 		},
 		computed: {
@@ -105,15 +114,15 @@
     	APIFullURL: function () {
       	// `this` points to the vm instance
       	return this.APIRootURL + this.folderName + '/' + this.tagName + '?' + this.APIqueryStrings
-    	},
-    	newHtmlForAppNexus: function(){
-    		var container = '<div class="container"> <!-- externalCreativeId  = raw       ${CREATIVE_ID} --> <!-- externalPlacementId = raw       ${TAG_ID} --> <!-- externalSiteId      = raw       ${SITE_ID} --> <!-- externalSiteName    = urldecode ${REFERER_URL_ENC} --> <!-- externalSupplierId  = raw       ${PUBLISHER_ID} --> <!-- externalCampaignId  = raw       ${CP_ID} --> <script src="APIFullURL"/> </div>'
+      },
+      newHtmlForAppNexus: function(){
+      	var container = '<div class="container"><script src="APIFullURL"/> </div>'
 
-    		var container= _.replace(container, 'APIFullURL', this.APIFullURL)
+      	var container= _.replace(container, 'APIFullURL', this.APIFullURL)
 
-    		return container;
-    	}
-  	}
-	}
-	/* eslint-enable */
+      	return container;
+      }
+  }
+}
+/* eslint-enable */
 </script>
