@@ -16,11 +16,15 @@
 						<div class="form-body">
 							<div class="form-group">
 								<label>File Name</label>
-								<input type="text" class="form-control" placeholder="" v-model="tagName"> 
+								<input type="text" class="form-control" placeholder="My Celtra Tag" v-model="tagName"> 
+							</div>
+							<div class="form-group">
+								<label>Fallback image Name</label>
+								<input type="text" id="fallBackImageName" class="form-control" placeholder="kitten.jpeg" v-model="fallBackImageName"> 
 							</div>
 							<div class="form-group">
 								<label>Please insert the Celtra Tag here : </label>
-								<textarea rows="10" cols="75" id="input" class="form-control" placeholder="Celtra Code" v-model="html"></textarea>
+								<textarea rows="5" cols="75" id="input" class="form-control" placeholder="Place your Celtra tag here" v-model="html"></textarea>
 							</div>
 						</div>
 						<div class="form-actions right">
@@ -36,7 +40,7 @@
 			</div>
 		</div>
 		<div class="col-md-4">
-		<div>
+			<div>
 				<file-select :username="folderName"></file-select>
 			</div>
 		</div>
@@ -46,6 +50,7 @@
 <script>
 	/* eslint-disable */
 	import FileSelect from './taglist.vue'
+	var specialSauce = require('../../utils/specialSauce.js')
 
 	var S3Upload = require('../../utils/S3Upload.js')
 	var _ = require('lodash')
@@ -63,51 +68,86 @@
 	})
 
 	var html = S3Upload.viewTagsFolder('user1');
+
+
 	
 	export default {
 		name: 'Portable',
-		 components: {
-    		FileSelect
-  		},
+		components: {
+			FileSelect
+		},
 		data () {
 			return {
 				folderName: 'user1',
 				tagName: '',
 				html: '',
 				htmlString: '',
-				APIRootURL: 'https://q7cg2e05ni.execute-api.us-east-1.amazonaws.com/staging/',
-				APIqueryStrings: 'clickUrl=${CLICK_URL}&externalCreativeId=${CREATIVE_ID}&externalPlacementID=${TAG_ID}&externalSiteID=${SITE_ID}&externalSiteName=${REFERER_URL_ENC}&externalSupplierId=${PUBLISHER_ID}&externalCampaignId=${CP_ID}', 
-				APITestUrl: 'https://q7cg2e05ni.execute-api.us-east-1.amazonaws.com/staging/asdf/asdf?clickUrl=www.test.com&externalCreativeId=69146847&externalPlacementID=11282894&externalSiteID=2924258&externalSiteName=www.padsquad2.com&externalSupplierId=100240&externalCampaignId=CP_ID',
-				file: null
+				APIRootURL: 'https://s3.amazonaws.com/alltags/user1/index2.js?',
+				JSFileURL: 'https://s3.amazonaws.com/alltags/user1/index2.js?',
+				APIqueryStrings: '', 
+				APITestUrl: '',
+				file: null,
+				fallBackImageName: ''
 			}
 		},
 		methods: {
 			createTag(){
 				var self = this;
-				//					create the folder if the folder does not exists
-				S3Upload.createTagFolder(this.folderName, function(err, data) {
-					if (err) {
-						return alert('There was an error creating your Tag: ' + err.message);
-					}
-					alert('Successfully created Tag.');
-					var tags = S3Upload.viewTagsFolder(self.folderName);
-					console.log(tags)
-				})
+				//get all variables from tag
+				// var tagstring = this.html.toString();
 
-	  		 //add tag html
-	  		 S3Upload.addTag(this.folderName, this.tagName, this.html, function(err, data) {
-	  		 	if (err) {
-	  		 		return alert('There was an error uploading your tag: ', err.message);
-	  		 	}
-	  		 	alert('Successfully uploaded tag.');
-	  		 	var tags = S3Upload.viewTagsFolder(self.folderName);
-	  		 	console.log(tags)
-	  		 })
-	  		},
-	  		clear(){
-	  			this.tagName = "";
-	  			this.html = "";
-			}
+				// //add special sauce lol
+				// var fallBackImageUrl = (this.fallBackImageUrl === '') ? document.getElementById("fallBackImageUrl").placeholder : this.fallBackImageUrl;
+				// var fallBackExitUrl = (this.fallBackExitUrl === '') ? document.getElementById("fallBackExitUrl").placeholder : this.fallBackExitUrl;
+
+				// var result = specialSauce.ssCeltraTag(tagstring, fallBackImageUrl, fallBackExitUrl);
+
+				// this.html = result;
+
+				// var macros = this.html.toString().match(/.([%%])\w+%%|.([${}])\w+.|..([$!{}])\w+.|(XX\w...............XX)/g);
+				var macros = this.html.toString().match(/.([%%])\w+%%|(\${([A-Za-z0-9])\w+.)+|(\$!{([A-Za-z0-9])\w+.)+|(XX\w...............XX)/g);
+
+				//add all variables as querystring to the portableTag
+				var querystring = "";
+
+				macros.forEach( function( macro, i ) {
+
+					var keyword = macro.match(/([A-Z|a-z])\w+/g);
+				 
+					if( keyword.length > 0 ) {
+				    querystring += ( ( i != 0 ) ? '&' : '' ) + keyword[0] + '=' + macro;
+				  }
+				 
+				} );
+				
+				debugger;
+				querystring += "&fallBackImageName=" + ((this.fallBackImageName === '') ? 'kitten.jpeg' : this.fallBackImageName);
+
+				this.APIqueryStrings = querystring;
+
+				// //display the new tag
+				// //create the folder if the folder does not exists
+				// S3Upload.createTagFolder(this.folderName, function(err, data) {
+				// 	if (err) {
+				// 		return alert('There was an error creating your Tag: ' + err.message);
+				// 	}
+				// 	alert('Successfully created Tag.');
+				// 	var tags = S3Upload.viewTagsFolder(self.folderName);
+				// })
+
+	  	// 	 //add tag html
+	  	// 	 S3Upload.addTag(this.folderName, this.tagName, this.html, function(err, data) {
+	  	// 	 	if (err) {
+	  	// 	 		return alert('There was an error uploading your tag: ', err.message);
+	  	// 	 	}
+	  	// 	 	alert('Successfully uploaded tag.');
+	  	// 	 	var tags = S3Upload.viewTagsFolder(self.folderName);
+	  	// 	 })
+		  },
+		  clear(){
+		  	this.tagName = "";
+		  	this.html = "";
+		  }
 		},
 		computed: {
     	// a computed getter
@@ -116,13 +156,21 @@
       	return this.APIRootURL + this.folderName + '/' + this.tagName + '?' + this.APIqueryStrings
       },
       newHtmlForAppNexus: function(){
-      	var container = '<div class="container"><script src="APIFullURL"/> </div>'
+      	// var container = '<div class="container"><script src="APIFullURL"/> </div>'
 
-      	var container= _.replace(container, 'APIFullURL', this.APIFullURL)
+      var container = "<div class='padsquad-tag'>"
+        + "<img style='display:none' src=\"data:image/png,celtra\" onerror=\"(function(img) {"
+        +  "var scrpt = document.createElement('script');"
+        +  "scrpt.src = 'APIFullURL';"
+        +  "img.parentNode.insertBefore(scrpt, img.nextSibling);"
+        +  "})(this)\"/>"
+      	+  "</div>"
+
+      	var container= _.replace(container, 'APIFullURL', this.JSFileURL + 'tagName=' + this.tagName + '&' + this.APIqueryStrings)
 
       	return container;
       }
+    }
   }
-}
-/* eslint-enable */
+  /* eslint-enable */
 </script>
